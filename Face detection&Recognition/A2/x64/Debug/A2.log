@@ -1,0 +1,32 @@
+﻿  hog.cc
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(11): error C2039: “SVM”: 不是“cv”的成员
+  d:\opencv\opencv\build\include\opencv2\videostab\ring_buffer.hpp(49): note: 参见“cv”的声明
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(11): error C3646: “svm”: 未知重写说明符
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(11): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(51): error C2039: “SVMParams”: 不是“cv”的成员
+  d:\opencv\opencv\build\include\opencv2\videostab\ring_buffer.hpp(49): note: 参见“cv”的声明
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(51): error C2065: “SVMParams”: 未声明的标识符
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(51): error C2146: 语法错误: 缺少“;”(在标识符“params”的前面)
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(51): error C2065: “params”: 未声明的标识符
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(52): error C2039: “svm”: 不是“HOG::HOGPimpl”的成员
+  c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(5): note: 参见“HOG::HOGPimpl”的声明
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(52): error C2228: “.train”的左边必须有类/结构/联合
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(52): error C2065: “params”: 未声明的标识符
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(70): error C2039: “svm”: 不是“HOG::HOGPimpl”的成员
+  c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(5): note: 参见“HOG::HOGPimpl”的声明
+c:\users\iris\desktop\ws17-18\cv_p\a2\hog.cc(70): error C2228: “.predict”的左边必须有类/结构/联合
+  assignment2.cc
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\utility(172): warning C4800: “int”: 将值强制为布尔值“true”或“false”(性能警告)
+  c:\users\iris\desktop\ws17-18\cv_p\a2\assignment2.cc(57): note: 参见对正在编译的函数 模板 实例化“std::pair<std::string,bool>::pair<const std::string,int,void,0>(_Other1 &&,_Other2 &&) noexcept(false)”的引用
+          with
+          [
+              _Other1=const std::string,
+              _Other2=int
+          ]
+  c:\users\iris\desktop\ws17-18\cv_p\a2\assignment2.cc(57): note: 参见对正在编译的函数 模板 实例化“std::pair<std::string,bool>::pair<const std::string,int,void,0>(_Other1 &&,_Other2 &&) noexcept(false)”的引用
+          with
+          [
+              _Other1=const std::string,
+              _Other2=int
+          ]
+  正在生成代码...
