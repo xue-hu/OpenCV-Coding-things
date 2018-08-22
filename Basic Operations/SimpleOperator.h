@@ -6,6 +6,7 @@
 int SimpleIO();
 void Salt(cv::Mat &Img, int n);
 void Sharpen(cv::Mat &Img, cv::Mat &Result);
+cv::Mat equalize(const cv::Mat &image);
 
 class ColorDetector {
 
@@ -24,4 +25,76 @@ public:
 	void setTarget(unsigned char r, unsigned char g, unsigned char b);
 	cv::Vec3b getTarget() const;
 	cv::Mat process(const cv::Mat image);
+};
+
+class Histogram3D {
+
+private:
+	int bins[1];
+	float hranges[2];
+	const float *ranges[3];
+	int channels[3];
+
+public:
+
+	Histogram3D();
+	cv::MatND getHistogram3D( const cv::Mat &image);
+	cv::Mat* getHistgramImg(const cv::Mat &image );
+};
+
+class ContentFinder {
+private:
+	float hranges[2];
+	const float* ranges[3];
+	int channels[3];
+	float threshold;
+	cv::MatND hist;
+
+public:
+	ContentFinder();
+	void setThreshold(float t);
+	float getThreshold();
+	void setHistogram(const cv::MatND& histogram);
+	cv::Mat find(const cv::Mat &image ,
+							float minval,
+							float maxval,
+							int dim);
+};
+
+class MorphoFeatures {
+private:
+	int threshold;
+	cv::Mat cros;
+	cv::Mat diamond;
+	cv::Mat square;
+	cv::Mat x;
+public:
+	MorphoFeatures();
+	void setThreshold(int t);
+	int getThreshold();
+	void ApplyThreshold(const cv::Mat &result);
+	cv::Mat getEdges(const cv::Mat &image);
+	cv::Mat getCorners(const cv::Mat &image);
+};
+
+class WatershedSegmenter {
+private:
+	cv::Mat markers;
+public:
+	void setMarkers( const cv::Mat &markerImg);
+	cv::Mat process( const cv::Mat &image);
+};
+
+class LaplacianZC {
+private:
+	cv::Mat image;
+	cv::Mat laplace;
+	int aperture;
+
+public:
+	LaplacianZC();
+	void setAperture(int t);
+	void computeLaplacian(const cv::Mat &iamge);
+	cv::Mat getLaplacianImg(const cv::Mat &iamge);
+	cv::Mat getZeroCrossing(const cv::Mat &image,float threshold);
 };

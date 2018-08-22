@@ -1,20 +1,22 @@
 #include<opencv2/core/core.hpp>
 #include<opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include "SimpleOperator.h"
 #include <iostream>
+#include<windows.h>
 using namespace std;
 
 int main() {
 
 	cv::Mat image = cv::imread("C:/Users/Iris/Desktop/1.jpg");
-	ColorDetector cdetect;
-	cdetect.setTarget(130,190,230);
-	cv::namedWindow("my image");
-	cv::imshow("my image",image);
+	cv::Mat result;
+	LaplacianZC laplace;
+	laplace.setAperture(7);
+	result = laplace.getZeroCrossing(image, 0);
 	cv::namedWindow("my result");
-	cv::imshow("my result", cdetect.process(image));
+	cv::imshow("my result", result);
 	cv::waitKey(0);
-	return 1;
+	return 0;
 
 
 }
