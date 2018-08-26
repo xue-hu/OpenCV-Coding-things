@@ -162,9 +162,10 @@ cv::Mat ColorDetector::process(const cv::Mat image) {
 
 
 	}
-
 Histogram3D::Histogram3D() {
-	bins[0] = 256 ;
+	bins[0] = 8 ;
+	bins[1] = 8;
+	bins[2] = 8;
 	hranges[0] =  0.0 ;
 	hranges[1] = 255.0 ;
 	ranges[0] = hranges ;
@@ -174,7 +175,6 @@ Histogram3D::Histogram3D() {
 	channels[1] = 1;
 	channels[2] = 2;
 }
-
 cv::MatND Histogram3D::getHistogram3D( const cv::Mat &image)
 {
 	cv::MatND hist;
@@ -183,13 +183,13 @@ cv::MatND Histogram3D::getHistogram3D( const cv::Mat &image)
 						channels,
 						cv::Mat () ,
 						hist,
-						1,
+						3,
 						bins,
 						ranges);
+	
 	return hist;
 
 }
-
 cv::Mat* Histogram3D::getHistgramImg(const cv::Mat &image)
 {
 	
@@ -218,9 +218,8 @@ cv::Mat* Histogram3D::getHistgramImg(const cv::Mat &image)
 	}
 	return histImg;
 }
-
 ContentFinder::ContentFinder() {
-	threshold = 0.7;
+	threshold = 0.01f;
 	ranges[0] = hranges;
 	ranges[1] = hranges;
 	ranges[2] = hranges;
@@ -250,6 +249,7 @@ cv::Mat ContentFinder::find(const cv::Mat& image,
 	float maxval,
 	int dim)
 {
+	
 	cv::Mat result;
 	hranges[0] = minval;
 	hranges[1] = maxval;
@@ -258,14 +258,13 @@ cv::Mat ContentFinder::find(const cv::Mat& image,
 									hist,
 									result,
 									ranges,
-									255.0);
+									255);
 	if (threshold > 0.0)
 	{
-		cv::threshold(result, result, 255*threshold, 255, cv::THRESH_BINARY );
+		cv::threshold(result, result,255*threshold, 255, cv::THRESH_BINARY );
 	}
 	return result;
 }
-
 MorphoFeatures::MorphoFeatures():threshold(40), 
 							cros(5,5,CV_8U,cv::Scalar(0)),
 							diamond(5, 5, CV_8U, cv::Scalar(1)), 
@@ -390,5 +389,105 @@ cv::Mat LaplacianZC::getZeroCrossing(const cv::Mat &image,float threshold) {
 	}
 	
 	return result;
+
+}
+LineFinder::LineFinder() :deltaR(1.0) , deltaT(PI/180),
+										 minVote(300), minLength(1.), 
+										 maxGap(1.){}
+void LineFinder::setAccResolution(double r, double theta) {
+	if (r > 0 && theta > 0)
+	{
+		deltaR = r;
+		deltaT = theta;
+	}
+}
+void LineFinder::setMinVote(int minval) {
+	if (minval > 0)
+		minVote = minval;
+
+}
+void LineFinder::setLengthGap(double len, double gap) {
+	if (len > 0 && gap > 0)
+	{
+		minLength = len;
+		maxGap = gap;
+	}
+}
+vector<cv::Vec4i> LineFinder::findLines(const cv::Mat &img) {
+	lines.clear();
+	cv::Mat gryImg;
+	cv::Mat contours;
+	cv::Mat binary;
+	cv::cvtColor(img,gryImg, CV_BGR2GRAY);
+	cv::Canny(gryImg, contours, 125, 350);
+	cv::threshold(contours, binary, 128, 255, CV_THRESH_BINARY_INV);
+	cv::HoughLinesP(binary, lines, deltaR, deltaT, minVote, minLength, maxGap);
+	return lines;
+}
+cv::Mat LineFinder::drawDetecLines(const cv::Mat &img) {
+	lines = findLines(img);
+	cv::Mat result = img.clone() ;
+	cv::Scalar color = cv::Scalar(0, 0, 255);
+	vector<cv::Vec4i>::const_iterator it = lines.begin();
+	while (it != lines.end())
+	{
+		cv::Point pt1( (*it)[0],  (*it)[1] );
+		cv::Point pt2( (*it)[2], (*it)[3]  );
+		cv::line(result, pt1, pt2,color,3);
+		it++;
+	}
+	return result;
+
+}
+HarrisDetector::HarrisDetector(): neighbor(3), aperture(3), k(0.01), maxStrength(0.), threshold(0.01), nonMaxSize(3){
+	setLocalMaxWindowSize(nonMaxSize);
+}
+void HarrisDetector::setLocalMaxWindowSize(int nonMaxSize){
+	
+
+
+}
+void HarrisDetector::detect(const cv::Mat &image) {
+	cv::Mat gryImg;
+	cv::cvtColor(image, gryImg, CV_BGR2GRAY);
+	cv::cornerHarris(gryImg, cornerStrength, neighbor, aperture, k);
+	double minStrength;
+	cv::minMaxLoc(cornerStrength, &minStrength, &maxStrength);
+	cv::Mat dilated;
+	cv::dilate(cornerStrength, dilated, cv::Mat());
+	cv::compare(cornerStrength, dilated, localMax, cv::CMP_EQ);
+}
+cv::Mat HarrisDetector::getCornerMap(double qualityLevel) {
+	cv::Mat CornerMap;
+	threshold = maxStrength * qualityLevel; 
+	cv::threshold(cornerStrength, cornerThrd, threshold, 255, CV_THRESH_BINARY );
+	cornerThrd.convertTo( CornerMap, CV_8U);
+	cv:: bitwise_and( CornerMap, localMax, CornerMap);
+	return CornerMap;
+}
+void HarrisDetector::getCorner(std::vector<cv::Point> &points, double qualityLevel)
+{
+	cv::Mat cornerMap = getCornerMap(qualityLevel);
+	for (int i = 0; i < cornerMap.rows; ++i)
+	{
+		const uchar* rowptr = cornerMap.ptr<uchar>(i);
+		for (int j = 0; j < cornerMap.cols; ++j)
+		{
+			if (rowptr[j])
+				points.push_back( cv::Point(j,i) );
+		}
+	}
+}
+void HarrisDetector::DrawOnImg(cv::Mat &image, vector < cv::Point > points,
+														cv::Scalar color, 
+														int radius , int thickness) {
+
+	vector<cv::Point>::const_iterator it = points.begin();
+	vector<cv::Point>::const_iterator itend = points.end();
+	while (it != itend)
+	{
+		cv::circle(image,(*it),radius, color, thickness);
+		++it;
+	}
 
 }

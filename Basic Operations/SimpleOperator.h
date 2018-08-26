@@ -1,7 +1,12 @@
 #pragma once
+#ifndef SIMPLEOPERATOR_H
+#define SIMPLEOPERATOR_H
+
 #include<opencv2/core/core.hpp>
 #include<opencv2/highgui/highgui.hpp>
+using namespace std;
 
+#define PI 3.14159
 
 int SimpleIO();
 void Salt(cv::Mat &Img, int n);
@@ -30,7 +35,7 @@ public:
 class Histogram3D {
 
 private:
-	int bins[1];
+	int bins[3];
 	float hranges[2];
 	const float *ranges[3];
 	int channels[3];
@@ -98,3 +103,48 @@ public:
 	cv::Mat getLaplacianImg(const cv::Mat &iamge);
 	cv::Mat getZeroCrossing(const cv::Mat &image,float threshold);
 };
+
+class LineFinder {
+private:
+	cv::Mat img;
+	vector<cv::Vec4i> lines;
+	double deltaR;
+	double deltaT;
+	int minVote;
+	double minLength;
+	double maxGap;
+public:
+	LineFinder();
+	void setAccResolution(double r, double theta);
+	void setMinVote(int minval);
+	void setLengthGap(double len, double gap);
+	vector<cv::Vec4i> findLines(const cv::Mat &img);
+	cv::Mat drawDetecLines(const cv::Mat &img);
+};
+class HarrisDetector {
+private:
+	cv::Mat cornerStrength;
+	cv::Mat cornerThrd;
+	cv::Mat localMax;
+	int neighbor;
+	int aperture;
+	double k;
+	double maxStrength;
+	double threshold;
+	int nonMaxSize;
+	cv::Mat kernel;
+public:
+	HarrisDetector();
+	void setLocalMaxWindowSize( int nonMaxSize);
+	void detect( const cv::Mat &image);
+	cv::Mat getCornerMap(double qualityLevel);
+	void getCorner(std::vector<cv::Point> &points, double qualityLevel);
+	void DrawOnImg(cv::Mat &image, std::vector < cv::Point > points, 
+									cv::Scalar color=cv::Scalar(255,255,255), 
+									int radius= 3, int thickness=2);
+};
+
+
+
+
+#endif 

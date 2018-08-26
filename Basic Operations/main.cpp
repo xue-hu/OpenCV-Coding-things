@@ -8,13 +8,17 @@ using namespace std;
 
 int main() {
 
-	cv::Mat image = cv::imread("C:/Users/Iris/Desktop/1.jpg");
-	cv::Mat result;
-	LaplacianZC laplace;
-	laplace.setAperture(7);
-	result = laplace.getZeroCrossing(image, 0);
+	cv::Mat image = cv::imread("C:/Users/Iris/Desktop/2.jpg");
+	HarrisDetector detector;
+	detector.detect(image);
+	double qualityLevel = 0.01;
+	vector < cv::Point > points;
+	detector.getCorner(points, qualityLevel);
+	detector.DrawOnImg(image, points);
+	//cv::namedWindow("my image");
+	//cv::imshow("my image", ROI); 
 	cv::namedWindow("my result");
-	cv::imshow("my result", result);
+	cv::imshow("my result", image);
 	cv::waitKey(0);
 	return 0;
 
