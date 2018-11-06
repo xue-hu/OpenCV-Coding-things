@@ -31,6 +31,47 @@ bool videoProcessor::setInput(string file_path) {
 	
 }
 
+bool videoProcessor::setOutput(string& file_path, int codec,
+	double framerate ,
+	bool isColor )
+{
+	extension.clear();
+	OutFilePath = file_path;
+	if (framerate == 0.0)
+		framerate = getFrameRate();
+	char c[4];
+	if (codec = 0)
+		codec = 'XVID' ; //getCodec(c);
+
+	return writer.open(OutFilePath,
+						codec,
+						framerate,
+						getFrameSize(),
+						isColor);
+}
+int videoProcessor::getCodec(char codec[4]) {
+	union {
+		int value;
+		char code[4];
+	}returned;
+	returned.value = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));
+	codec[0] = returned.code[0];
+	codec[1] = returned.code[1];
+	codec[2] = returned.code[2];
+	codec[3] = returned.code[3];
+	cout << codec[0] << codec[1] << codec[2] << codec[3] << endl;
+	return returned.value;
+}
+cv::Size videoProcessor::getFrameSize() {
+	int width = static_cast<int>( capture.get(CV_CAP_PROP_FRAME_WIDTH) );
+	int height = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+	return cv::Size(width, height);
+}
+void videoProcessor::writeNextFrame(cv::Mat& frame)
+{
+	writer.write(frame);
+}
+
 void videoProcessor::displayInput(string In_Win) {
 	cv::destroyWindow(In_Win);
 	InWinName = In_Win;
@@ -84,8 +125,10 @@ void videoProcessor::run() {
 		}
 		if (OutWinName.length() != 0)
 			cv::imshow(OutWinName, out);
+		if (OutFilePath.length() != 0)
+			writeNextFrame(out);
 		if (delay >= 0 && cv::waitKey(delay) >= 0)
-			stop = false;
+			stop = true;
 		if (frameToStop >= 0 && getFrameNumber() == frameToStop)
 			stop = true;
 	}
